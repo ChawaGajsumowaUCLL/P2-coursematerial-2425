@@ -1,0 +1,75 @@
+from abc import ABC, abstractmethod 
+
+class Ticket:
+    def __init__(self, ticket_id, ticket_type, price):
+        self.__ticket_id = ticket_id
+        self.ticket_type = ticket_type
+        self.price = price
+
+    @property
+    def ticket_id(self):
+        return self.__ticket_id
+    
+    def validate_ticket(ticket_id):
+        return len(ticket_id) == 8 and ticket_id[0:3].isalpha() and ticket_id[0:3].isupper() and ticket_id[3::].isdigit()
+ 
+    @ticket_id.setter
+    def ticket_id(self, value):
+        if Ticket.validate_ticket(value):
+            self.__ticket_id = value
+        else:
+            raise ValueError("Invalid Ticket ID")
+
+    def __str__(self):
+        return "Ticket ID: " + self.__ticket_id + ", ticket type: " + self.ticket_type + ", price: " + self.price
+
+
+
+class Event(ABC):
+    def __init__(self, event_name, max_capacity):
+        self.name = event_name
+        self.max_capacity = max_capacity
+        self.__tickets = {}
+
+    def add_ticket(self, ticket):
+        if self.total_ticket >= self.max_capacity:
+            raise ValueError("Max capacity reached")
+        self.__tickets[ticket.ticket_id] = ticket
+
+    def remove_ticket(self, ticket_id):
+        if ticket_id not in self.__tickets:
+            raise ValueError("Ticket not found!")
+        del self.__tickets[ticket_id]
+
+    @property
+    def total_ticket(self):
+        return len(self.__tickets)
+
+    @abstractmethod
+    def generate_event_summary(self):
+        pass
+
+
+
+class Concert(Event):
+    def __init__(self, event_name, max_capacity, artists):
+        super().__init__(event_name, max_capacity)
+        self.artists = artists
+
+    def generate_event_summary(self):
+        summary = f"Name: ${self.name} \nTotal tickets: ${self.total_ticket} \nArtists: "
+
+        for artist in self.artists:
+            summary += f"\n     -${artist} "
+
+        return summary
+
+
+class PrivateEvent(Event):
+    def __init__(self, event_name, artist):
+        super().__init__(event_name, 50)
+        self.artist = artist
+
+    def generate_event_summary(self):
+        return f"Name: ${self.name} \nTotal tickets: ${self.total_ticket} \nArtists: ${self.artist}"
+    
